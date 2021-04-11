@@ -1,4 +1,4 @@
-const resources = [
+export default [
   {
     preview:
       'https://cdn.pixabay.com/photo/2019/05/14/16/43/himilayan-blue-poppy-4202825__340.jpg',
@@ -63,60 +63,3 @@ const resources = [
     description: 'Lighthouse Coast Sea',
   },
 ];
-
-// Разбей задание на несколько подзадач:
-
-// Создание и рендер разметки по массиву данных и предоставленному шаблону.
-
-const galleryContainer = document.querySelector('.js-gallery');
-const cardsMarkup = createGalleryCardsMarkup(resources);
-galleryContainer.insertAdjacentHTML('beforeend', cardsMarkup);
-
-function createGalleryCardsMarkup(resources) {
-  return resources
-    .map(({ preview, original, description }) => {
-    return `
-    <li class="gallery__item">
-        <a  class="gallery__link" href="${original}" >
-        <img
-            class="gallery__image"
-            src="${preview}"
-            data-source="${original}"
-            alt="${description}" /> </a>
-    </li>`;
-  }).join('');
-}
-
-// Реализация делегирования на галерее ul.js-gallery и получение url большого изображения.
-galleryContainer.addEventListener('click', onGalleryContainerClick);
-
-function onGalleryContainerClick(evt) {
-  if (!evt.target.classList.contains('gallery__item')) { return; }; // Проверка на кликанье по Li-шке галереи
-
-  const swatchEl = evt.target;
-  const bigImageUrl = swatchEl.dataset.original;
-  console.log(bigImageUrl);
-
-// Открытие модального окна по клику на элементе галереи.
-  const currentActiveEl = document.querySelector('div.lightbox');
-  currentActiveEl.classList.add('is-open');
-
-// Подмена значения атрибута src элемента img.lightbox__image.
-  const necessaryIMG = currentActiveEl.querySelector('.lightbox__image');
-  necessaryIMG.dataset.src = bigImageUrl;
-
-// Закрытие модального окна по клику на кнопку button[data-action="close-lightbox"].
-  const closeModalBtn = document.querySelector('.lightbox__button');
-  closeModalBtn.addEventListener('click', onCloseModalBtnClick);
-};
-
-function onCloseModalBtnClick() {
-  currentActiveEl.classList.remove('is-open');
-
-// Очистка значения атрибута src элемента img.lightbox__image. Это необходимо для того, чтобы при следующем открытии модального окна, пока грузится изображение, мы не видели предыдущее.
-  lightboxImageSrcCleaning();
-};
-
-function lightboxImageSrcCleaning() {
-  necessaryIMG.dataset.src = "";
-};
