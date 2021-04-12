@@ -40,25 +40,19 @@ function createGalleryCardsMarkup(resources) {
 };
 
 galleryContainer.addEventListener('click', onGalleryContainerClick);
+let currentSlide = 0;
+let n = 0;
+let slides = document.querySelectorAll('.gallery__image');
 
 function onGalleryContainerClick(evt) {
     if (!evt.target.classList.contains('gallery__image')) { return; };
 
-    let slides = document.querySelectorAll('.gallery__image');
-    let currentSlide = 0;
-    for (let i = 0; i < slides.length; i += 1) {
-        if (slides[i].alt === evt.target.alt) {
-            console.log(`Текущий елемент № ${i}`);
-            currentSlide = i;
-        }
-    };
+    findingCurrentSlide(evt);
     
-    const bigImageUrl = evt.target.dataset.source;
-    const bigImageAlt = evt.target.alt;
-    
-    imgAttributesChanging(bigImageUrl, bigImageAlt);
+    findinAtributesFromCurrentSlide(currentSlide);
 
-    modalLightbox.classList.add('is-open');  
+    if (!modalLightbox.classList.contains('is-open')) {
+    modalLightbox.classList.add('is-open');  }
 
     closeModalBtn.addEventListener('click', onCloseModalBtnClick);
     lightboxOverlay.addEventListener('click', onlightboxOverlayClick)
@@ -67,6 +61,26 @@ function onGalleryContainerClick(evt) {
         window.addEventListener('keydown', onChangingImgKeyPress);
     };
 };
+
+function findingCurrentSlide(evt) {
+    for (let i = 0; i < slides.length; i += 1) {
+        if (slides[i].alt === evt.target.alt) {
+            console.log(`Текущий елемент № ${i}`);
+            currentSlide = slides[i];
+            console.log(currentSlide);
+            console.log(evt.target);
+            n = i;
+            // evt.target = currentSlide;
+        }
+    };
+}
+
+function findinAtributesFromCurrentSlide(currentSlide) {
+    let bigImageUrl = currentSlide.dataset.source;
+    let bigImageAlt = currentSlide.alt;
+    
+    imgAttributesChanging(bigImageUrl, bigImageAlt);
+}
 
 function imgAttributesChanging(url, alt) {
     necessaryImg.src = url;
@@ -100,8 +114,8 @@ function lightboxImageSrcCleaning() {
 function onChangingImgKeyPress(event) {
     const PREV_IMG_KEY_CODE = 'ArrowLeft';
     const NEXT_IMG_KEY_CODE = 'ArrowRight';
-    const isPrevImgKey = event.code === PREV_IMG_KEY_CODE;
-    const isNextImgKey = event.code === NEXT_IMG_KEY_CODE;
+    let isPrevImgKey = event.code === PREV_IMG_KEY_CODE;
+    let isNextImgKey = event.code === NEXT_IMG_KEY_CODE;
     if (isPrevImgKey) {
         console.log('Pressed ArrowLeft');
         showPrevImg();
@@ -112,17 +126,20 @@ function onChangingImgKeyPress(event) {
 };
 
 function showPrevImg() {
-    console.log(currentSlide + 1);
-    // goToSlide(currentSlide - 1);
+    currentSlide = slides[n - 1];
+    console.log(currentSlide);
+    findinAtributesFromCurrentSlide(currentSlide);
 };
 function showNextImg() {
-    console.log(currentSlide + 1);
+    currentSlide = slides[n + 1];
+    console.log(currentSlide);
+    findinAtributesFromCurrentSlide(currentSlide);
     // goToSlide(currentSlide + 1);
 };
 // function goToSlide(n) {
 //   currentSlide = (n + slides.length) % slides.length;
 //   const imgSlideRef = slides[currentSlide];
-//   onGalleryContainerClick(imgSlideRef);
+//   
 // }
 
 
