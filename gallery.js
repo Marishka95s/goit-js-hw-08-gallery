@@ -16,43 +16,56 @@ import resources from './gallery-items.js'
 // 3. Пролистывание изображений галереи в открытом модальном окне клавишами "влево" и "вправо".
 
 const galleryContainer = document.querySelector('.js-gallery');
-const modalLightbox = document.querySelector('div.lightbox');
+const modalLightbox = document.querySelector('.js-lightbox');
 const closeModalBtn = document.querySelector('.lightbox__button');
+const lightboxOverlay = modalLightbox.querySelector('.lightbox__overlay');
 const necessaryImg = modalLightbox.querySelector('.lightbox__image');
 
 const cardsMarkup = createGalleryCardsMarkup(resources);
 galleryContainer.insertAdjacentHTML('beforeend', cardsMarkup);
 
-
 function createGalleryCardsMarkup(resources) {
-  return resources
-    .map(({ preview, original, description }) => {
-    return `
-    <li class="gallery__item">
-        <a class="gallery__link" href="${original}" onclick="event.preventDefault()" >
-        <img
-            class="gallery__image"
-            src="${preview}"
-            data-source="${original}"
-            alt="${description}" /> </a>
-    </li>`;
-  }).join('');
-}
+    return resources
+        .map(({ preview, original, description }) => {
+            return `
+            <li class="gallery__item">
+                <a class="gallery__link" href="${original}" onclick="event.preventDefault()" >
+                <img
+                    class="gallery__image"
+                    src="${preview}"
+                    data-source="${original}"
+                    alt="${description}" /> </a>
+            </li>`;
+            }).join('');
+};
 
 galleryContainer.addEventListener('click', onGalleryContainerClick);
 
-
 function onGalleryContainerClick(evt) {
-    if (!evt.target.classList.contains('gallery__image')) { return; }; 
+    if (!evt.target.classList.contains('gallery__image')) { return; };
 
+    let slides = document.querySelectorAll('.gallery__image');
+    let currentSlide = 0;
+    for (let i = 0; i < slides.length; i += 1) {
+        if (slides[i].alt === evt.target.alt) {
+            console.log(`Текущий елемент № ${i}`);
+            currentSlide = i;
+        }
+    };
+    
     const bigImageUrl = evt.target.dataset.source;
     const bigImageAlt = evt.target.alt;
     
-    modalLightbox.classList.add('is-open');     
-  
     imgAttributesChanging(bigImageUrl, bigImageAlt);
 
+    modalLightbox.classList.add('is-open');  
+
     closeModalBtn.addEventListener('click', onCloseModalBtnClick);
+    lightboxOverlay.addEventListener('click', onlightboxOverlayClick)
+    window.addEventListener('keydown', onEscKeyPress);
+    if (modalLightbox.classList.contains('is-open')) {
+        window.addEventListener('keydown', onChangingImgKeyPress);
+    };
 };
 
 function imgAttributesChanging(url, alt) {
@@ -63,8 +76,80 @@ function imgAttributesChanging(url, alt) {
 function onCloseModalBtnClick() {
     modalLightbox.classList.remove('is-open');
     lightboxImageSrcCleaning();
+    window.removeEventListener('keydown', onChangingImgKeyPress);
+};
+function onlightboxOverlayClick() {
+    modalLightbox.classList.remove('is-open');
+    lightboxImageSrcCleaning();
+    window.removeEventListener('keydown', onChangingImgKeyPress);
+};
+function onEscKeyPress(event) {
+    const ESC_KEY_CODE = 'Escape';
+    const isEscKey = event.code === ESC_KEY_CODE;
+    if (isEscKey) {
+        modalLightbox.classList.remove('is-open');
+        lightboxImageSrcCleaning();
+        window.removeEventListener('keydown', onChangingImgKeyPress);
+    }   
 };
 
 function lightboxImageSrcCleaning() {
     necessaryImg.src = '';
 };
+
+function onChangingImgKeyPress(event) {
+    const PREV_IMG_KEY_CODE = 'ArrowLeft';
+    const NEXT_IMG_KEY_CODE = 'ArrowRight';
+    const isPrevImgKey = event.code === PREV_IMG_KEY_CODE;
+    const isNextImgKey = event.code === NEXT_IMG_KEY_CODE;
+    if (isPrevImgKey) {
+        console.log('Pressed ArrowLeft');
+        showPrevImg();
+    } else if (isNextImgKey) {
+        console.log('Pressed ArrowRight');
+        showNextImg();
+    }
+};
+
+function showPrevImg() {
+    console.log(currentSlide + 1);
+    // goToSlide(currentSlide - 1);
+};
+function showNextImg() {
+    console.log(currentSlide + 1);
+    // goToSlide(currentSlide + 1);
+};
+// function goToSlide(n) {
+//   currentSlide = (n + slides.length) % slides.length;
+//   const imgSlideRef = slides[currentSlide];
+//   onGalleryContainerClick(imgSlideRef);
+// }
+
+
+// let slides = document.querySelectorAll('.gallery__image');
+// let currentSlide = 0;
+// function onArrowSlider(event) {
+//   if (event.code === 'ArrowRight') {
+//     nextSlide();
+//   } else if (event.code === 'ArrowLeft') {
+//     previousSlide();
+//   }
+// }
+// function nextSlide() {
+//   goToSlide(currentSlide + 1);
+// }
+// function previousSlide() {
+//   goToSlide(currentSlide - 1);
+// }
+// function goToSlide(n) {
+//   currentSlide = (n + slides.length) % slides.length;
+//   const imgSlideRef = slides[currentSlide];
+//   onImgModal(imgSlideRef);
+// }
+
+
+ // const currentImgIndex = resources.map(({ preview, original, description }) => {
+    //     if (description === evt.target.alt) {
+    //        return resources.
+    //    }
+    // });
