@@ -26,7 +26,8 @@ galleryContainer.insertAdjacentHTML('beforeend', cardsMarkup);
 
 function createGalleryCardsMarkup(resources) {
     return resources
-        .map(({ preview, original, description }) => {
+        .map(res => {
+            const { preview, original, description } = res;
             return `
             <li class="gallery__item">
                 <a class="gallery__link" href="${original}" onclick="event.preventDefault()" >
@@ -34,78 +35,53 @@ function createGalleryCardsMarkup(resources) {
                     class="gallery__image"
                     src="${preview}"
                     data-source="${original}"
-                    alt="${description}" /> </a>
+                    alt="${description}"
+                    data-index="${resources.indexOf(res)}" /> </a>
             </li>`;
             }).join('');
 };
 
 galleryContainer.addEventListener('click', onGalleryContainerClick);
 let currentSlide = 0;
-let n = 0;
 let slides = document.querySelectorAll('.gallery__image');
 
 function onGalleryContainerClick(evt) {
     if (!evt.target.classList.contains('gallery__image')) { return; };
 
-    findingCurrentSlide(evt);
+    currentSlide = evt.target;
+    console.log(currentSlide);
+
+    imgAttributesChanging(currentSlide)
     
-    findinAtributesFromCurrentSlide(currentSlide);
-
     if (!modalLightbox.classList.contains('is-open')) {
-    modalLightbox.classList.add('is-open');  }
+        modalLightbox.classList.add('is-open');
+    }
 
-    closeModalBtn.addEventListener('click', onCloseModalBtnClick);
-    lightboxOverlay.addEventListener('click', onlightboxOverlayClick)
-    window.addEventListener('keydown', onEscKeyPress);
     if (modalLightbox.classList.contains('is-open')) {
         window.addEventListener('keydown', onChangingImgKeyPress);
     };
+
+    closeModalBtn.addEventListener('click', onCloseModal);
+    lightboxOverlay.addEventListener('click', onCloseModal)
+    window.addEventListener('keydown', onEscKeyPress);   
 };
 
-function findingCurrentSlide(evt) {
-    for (let i = 0; i < slides.length; i += 1) {
-        if (slides[i].alt === evt.target.alt) {
-            console.log(`Текущий елемент № ${i}`);
-            currentSlide = slides[i];
-            console.log(currentSlide);
-            console.log(evt.target);
-            n = i;
-            // evt.target = currentSlide;
-        }
-    };
-}
-
-function findinAtributesFromCurrentSlide(currentSlide) {
-    let bigImageUrl = currentSlide.dataset.source;
-    let bigImageAlt = currentSlide.alt;
-    
-    imgAttributesChanging(bigImageUrl, bigImageAlt);
-}
-
-function imgAttributesChanging(url, alt) {
-    necessaryImg.src = url;
-    necessaryImg.alt = alt;
+function imgAttributesChanging(currentSlide) {
+    necessaryImg.src = currentSlide.dataset.source;
+    necessaryImg.alt = currentSlide.alt;
 };
 
-function onCloseModalBtnClick() {
-    modalLightbox.classList.remove('is-open');
-    lightboxImageSrcCleaning();
-    window.removeEventListener('keydown', onChangingImgKeyPress);
-};
-function onlightboxOverlayClick() {
-    modalLightbox.classList.remove('is-open');
-    lightboxImageSrcCleaning();
-    window.removeEventListener('keydown', onChangingImgKeyPress);
-};
 function onEscKeyPress(event) {
     const ESC_KEY_CODE = 'Escape';
     const isEscKey = event.code === ESC_KEY_CODE;
-    if (isEscKey) {
-        modalLightbox.classList.remove('is-open');
-        lightboxImageSrcCleaning();
-        window.removeEventListener('keydown', onChangingImgKeyPress);
-    }   
+    if (isEscKey) { onCloseModal() }   
 };
+
+function onCloseModal() {
+    modalLightbox.classList.remove('is-open');
+    lightboxImageSrcCleaning();
+    window.removeEventListener('keydown', onChangingImgKeyPress);
+}
 
 function lightboxImageSrcCleaning() {
     necessaryImg.src = '';
@@ -126,47 +102,20 @@ function onChangingImgKeyPress(event) {
 };
 
 function showPrevImg() {
-    currentSlide = slides[n - 1];
+    if (currentSlide.dataset.index > 0) {
+        currentSlide = slides[Number(currentSlide.dataset.index) - 1];
+    } else { currentSlide = slides[8];}
+    necessaryImg.src = currentSlide.dataset.source;
+    necessaryImg.alt = currentSlide.alt;
     console.log(currentSlide);
-    findinAtributesFromCurrentSlide(currentSlide);
+    console.log(`Текущий слайд № ${currentSlide.dataset.index}`);
 };
 function showNextImg() {
-    currentSlide = slides[n + 1];
+    if (currentSlide.dataset.index < 8) {
+        currentSlide = slides[Number(currentSlide.dataset.index) + 1];
+    } else { currentSlide = slides[0];}
+    necessaryImg.src = currentSlide.dataset.source;
+    necessaryImg.alt = currentSlide.alt;
     console.log(currentSlide);
-    findinAtributesFromCurrentSlide(currentSlide);
-    // goToSlide(currentSlide + 1);
+    console.log(`Текущий слайд № ${currentSlide.dataset.index}`);
 };
-// function goToSlide(n) {
-//   currentSlide = (n + slides.length) % slides.length;
-//   const imgSlideRef = slides[currentSlide];
-//   
-// }
-
-
-// let slides = document.querySelectorAll('.gallery__image');
-// let currentSlide = 0;
-// function onArrowSlider(event) {
-//   if (event.code === 'ArrowRight') {
-//     nextSlide();
-//   } else if (event.code === 'ArrowLeft') {
-//     previousSlide();
-//   }
-// }
-// function nextSlide() {
-//   goToSlide(currentSlide + 1);
-// }
-// function previousSlide() {
-//   goToSlide(currentSlide - 1);
-// }
-// function goToSlide(n) {
-//   currentSlide = (n + slides.length) % slides.length;
-//   const imgSlideRef = slides[currentSlide];
-//   onImgModal(imgSlideRef);
-// }
-
-
- // const currentImgIndex = resources.map(({ preview, original, description }) => {
-    //     if (description === evt.target.alt) {
-    //        return resources.
-    //    }
-    // });
